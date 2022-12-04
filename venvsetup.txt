@@ -1,0 +1,6 @@
+open cmd prompt in vs code
+run: python --version
+run: python3.10 -m venv thevenv
+run: thevenv\Scripts\activate
+run: pip3 install --upgrade pip
+run: pip install "dependencies"
