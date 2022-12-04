@@ -11,7 +11,7 @@ def load_images_from_folder(folder):
 
 
 def main():
-    frames = load_images_from_folder("Video frames")
+    frames = load_images_from_folder("VideoFrames")
     print(len(frames))
 
     os.chdir(os.getcwd() + "/batches")
