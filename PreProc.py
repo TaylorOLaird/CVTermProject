@@ -1,11 +1,10 @@
-# import cv2
-# import numpy as np
+import cv2
+import numpy as np
 import os
-# import matplotlib.pyplot as plt
-# import pandas as pd
+import matplotlib.pyplot as plt
+import pandas as pd
 from PIL import Image
 
-# IMAGE_LABELS = []
 CORNERS = []
 
 
@@ -13,93 +12,83 @@ def load_images_from_folder(dir):
     image_names = os.listdir(dir)
     image_list = []
     for png in image_names:
-        # os.path.join(dir, image_name)
         image_list.append(Image.open(f"{dir}/{png}"))
     return image_names, image_list
 
 
-# XCOORDINATES = []
-# YCOORDINATES = []
-
-# def mouse_event(event):
-#     global XCOORDINATES
-#     global YCOORDINATES
-#     XCOORDINATES.append(round(event.xdata))
-#     YCOORDINATES.append(round(event.ydata))
-#     return
+def mouse_event(event):
+    global CORNERS
+    CORNERS.append((round(event.xdata), round(event.ydata)))
 
 
-# def init_coords(image):
-#     fig = plt.figure()
-#     # essentially use an event listener to send mouse clicks to a list
-#     cid = fig.canvas.mpl_connect('button_press_event', mouse_event)
+def get_corner(image):
+    fig = plt.figure()
+    # essentially use an event listener to send mouse clicks to a list
+    cid = fig.canvas.mpl_connect('button_press_event', mouse_event)
 
-#     # show the image for you to click on
-#     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-#     plt.axis('off')
-#     plt.show()
+    # show the image for you to click on
+    plt.imshow(image)
+    plt.axis('off')
+    plt.show()
 
 
 def main():
     # load in the images from a folder
     image_labels, image_list = load_images_from_folder("batches/0")
-    # print(image_labels)
-    # print()
-    # print(image_list)
 
-    # set up height/width vars based on a ratio
-    # 874/1200
-    width = 1200
-    height = 874
+    # set up height/width vars based callibrate.png
+    width, height = Image.open(f"callibrate.png").size
 
-    # global XCOORDINATES
-    # global YCOORDINATES
-    global CORNERS
+    # set up pand to store data for training a model later
+    df = pd.DataFrame()
 
-    # # set up pand to store data for training a model later
-    # df = pd.DataFrame()
+    for image in image_list:
+        global CORNERS
+        CORNERS.clear()
 
-    # for index in range(len(images)):
-    #     print(f"on iteration: {index}")
-    #     # clear the coordinats list for the next image
-    #     XCOORDINATES.clear()
-    #     YCOORDINATES.clear()
+        # get the corners, we did it a little weird with the
+        # global list so we could get all 4 clicks from 1 imshow
+        get_corner(image)
+        print(f"corner from mouse events: {CORNERS}")
 
-    #     image = images[index]
-    #     init_coords(image)
+        top_left = CORNERS[0]
+        top_right = CORNERS[1]
+        bottom_left = CORNERS[2]
+        bottom_right = CORNERS[3]
 
-    #     if len(XCOORDINATES) > 4 or len(YCOORDINATES) > 4:
-    #         print("generic useless error message: 159614895")
-    #         break
+        # load in the x and y from each point
+        original_corners = np.float32([[top_left[0], top_left[1]],
+                                       [top_right[0], top_right[1]],
+                                       [bottom_left[0], bottom_left[1]],
+                                       [bottom_right[0], bottom_right[1]]])
 
-    #     # do affine and metric rectification
-    #     original_corners = np.float32([[XCOORDINATES[0], YCOORDINATES[0]], [XCOORDINATES[1], YCOORDINATES[1]], [
-    #         XCOORDINATES[2], YCOORDINATES[2]], [XCOORDINATES[3], YCOORDINATES[3]]])
-    #     # these will need to be set to the same ratio we draw the outline box in, since this is what we are
-    #     # basically take where it is with the original, and morph it to these
-    #     new_corners = np.float32(
-    #         [[0, 0], [width, 0], [0, height], [width, height]])
-    #     # generate the transformation matrix
-    #     matrix = cv2.getPerspectiveTransform(original_corners, new_corners)
-    #     print(matrix)
+        new_corners = np.float32([[0, 0],
+                                  [width, 0],
+                                  [0, height],
+                                  [width, height]])
 
-    #     # create a new row df
-    #     new_row = pd.DataFrame({'image_label': [IMAGE_LABELS[index]], '0': [matrix[0][0]], '1': [matrix[0][1]], '2': [matrix[0][2]],
-    #                             '3': [matrix[1][0]], '4': [matrix[1][1]], '5': [matrix[1][2]],
-    #                             '6': [matrix[2][0]], '7': [matrix[2][1]], '8': [matrix[2][2]]})
-    #     # add it to the main df
-    #     df = pd.concat([df, new_row], axis=0, ignore_index=True)
+        # generate the transformation matrix and prints it, just to let us know how we're
+        # doing with tagging the corners as we go, and this will be similar to what the cnn
+        # attempts to do later
+        matrix = cv2.getPerspectiveTransform(original_corners, new_corners)
+        result = cv2.warpPerspective(np.array(image), matrix, (width, height))
+        plt.imshow(result)
+        plt.axis('off')
+        plt.show()
 
-    #     # again the dims here need to match the new corners
-    #     result = cv2.warpPerspective(image, matrix, (width, height))
+        new_row = pd.DataFrame(
+            {'top_left_x': [top_left[0]], 'top_left_y': [top_left[1]],
+             'top_right_x': [top_right[0]], 'top_right_y': [top_right[1]],
+             'bottom_left_x': [bottom_left[0]], 'bottom_left_y': [bottom_left[1]],
+             'bottom_right_x': [bottom_right[0]], 'bottom_right_y': [bottom_right[1]]})
 
-    #     # show the result of affine and rectification on the image with the matrix
-    #     plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-    #     plt.axis('off')
-    #     plt.show()
-    # # print df to terminal for debugging and also save to csv to train with later
-    # print(df)
-    # df.to_csv('label_matrix.csv', index=False)
+        # add it to the main df
+        df = pd.concat([df, new_row], axis=0, ignore_index=True)
+        print(f"current df: {df}")
+
+    # print df to terminal for debugging and also save to csv to train with later
+    print(f"final df: {df}")
+    df.to_csv('images_with_corners.csv', index=False)
 
 
 if __name__ == "__main__":
