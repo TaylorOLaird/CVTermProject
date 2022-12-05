@@ -33,9 +33,10 @@ def get_corner(image):
 
 
 def main():
+    batch = 0
     # load in the images from a folder
-    image_labels, image_list = load_images_from_folder("batches/0")
-
+    image_labels, image_list = load_images_from_folder(f"batches/{batch}")
+    print(image_labels)
     # set up height/width vars based callibrate.png
     width, height = Image.open(f"callibrate.png").size
 
@@ -76,11 +77,11 @@ def main():
         plt.axis('off')
         plt.show()
 
-        new_row = pd.DataFrame(
-            {'top_left_x': [top_left[0]], 'top_left_y': [top_left[1]],
-             'top_right_x': [top_right[0]], 'top_right_y': [top_right[1]],
-             'bottom_left_x': [bottom_left[0]], 'bottom_left_y': [bottom_left[1]],
-             'bottom_right_x': [bottom_right[0]], 'bottom_right_y': [bottom_right[1]]})
+        new_row = pd.DataFrame({'image_label': [image_labels],
+                                'top_left_x': [top_left[0]], 'top_left_y': [top_left[1]],
+                                'top_right_x': [top_right[0]], 'top_right_y': [top_right[1]],
+                                'bottom_left_x': [bottom_left[0]], 'bottom_left_y': [bottom_left[1]],
+                                'bottom_right_x': [bottom_right[0]], 'bottom_right_y': [bottom_right[1]]})
 
         # add it to the main df
         df = pd.concat([df, new_row], axis=0, ignore_index=True)
@@ -88,7 +89,7 @@ def main():
 
     # print df to terminal for debugging and also save to csv to train with later
     print(f"final df: {df}")
-    df.to_csv('images_with_corners.csv', index=False)
+    df.to_csv(f"images_with_corners_{batch}.csv", index=False)
 
 
 if __name__ == "__main__":
