@@ -84,7 +84,7 @@ def main():
 
         # add it to the main df
         df = pd.concat([df, new_row], axis=0, ignore_index=True)
-        print(f"current df: {df}")
+        print(f"current df: \n{df}")
 
     # print df to terminal for debugging and also save to csv to train with later
     print(f"final df: {df}")
