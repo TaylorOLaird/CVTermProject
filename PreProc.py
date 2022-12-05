@@ -36,7 +36,7 @@ def main():
     batch = 0
     # load in the images from a folder
     image_labels, image_list = load_images_from_folder(f"batches/{batch}")
-    print(image_labels)
+
     # set up height/width vars based callibrate.png
     width, height = Image.open(f"callibrate.png").size
 
