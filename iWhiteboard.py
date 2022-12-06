@@ -6,10 +6,8 @@ import CornerDetection
 
 
 def do_affine(img, points):
-    print("hello world")
-
-    width = 500
-    height = 250
+    height = int(img.shape[0])
+    width = int(img.shape[1])
 
     top_left = points[0]
     top_right = points[1]
@@ -17,10 +15,10 @@ def do_affine(img, points):
     bottom_right = points[3]
 
     # load in the x and y from each point
-    original_corners = np.float32([[top_left[0], top_left[1]],
-                                   [top_right[0], top_right[1]],
-                                   [bottom_left[0], bottom_left[1]],
-                                   [bottom_right[0], bottom_right[1]]])
+    original_corners = np.float32([[top_left[1], top_left[0]],
+                                   [top_right[1], top_right[0]],
+                                   [bottom_left[1], bottom_left[0]],
+                                   [bottom_right[1], bottom_right[0]]])
 
     new_corners = np.float32([[0, 0],
                               [width, 0],
@@ -47,19 +45,19 @@ def main():
     while True:
         _, img = cap.read()
         # print(img.shape)
-        padding = 0.7
-        height = int(img.shape[0]*padding)
-        width = int(img.shape[1]*padding)
+        zoom = 0.5
+        height = int(img.shape[0]*zoom)
+        width = int(img.shape[1]*zoom)
         # convert the image into PIL for easier operations later
-        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # im_pil = Image.fromarray(img)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        im_pil = Image.fromarray(img)
 
-        # # do operations on the PIL
-        # im_pil = im_pil.crop((0, 0, 500, 250))
+        # do operations on the PIL
+        im_pil = im_pil.crop((0, 0, width, height))
 
-        # # converts the PIL back into the right color space and array
-        # # so imshow can show it
-        # out_frame = cv2.cvtColor(np.array(im_pil), cv2.COLOR_RGB2BGR)
+        # converts the PIL back into the right color space and array
+        # so imshow can show it
+        out_frame = cv2.cvtColor(np.array(im_pil), cv2.COLOR_RGB2BGR)
         # cv2.imshow('Video feed', out_frame)
 
         # # store the current frame as last frame for later use
@@ -68,37 +66,46 @@ def main():
 
         # im_h = cv2.hconcat([im1, im1])
         # cv2.imwrite('data/dst/opencv_hconcat.jpg', im_h)
-        video_feed = np.copy(img)
-        corners, coorner_coords = CornerDetection.get_corners(np.copy(img))
+        video_feed = np.copy(out_frame)
+        corners, coorner_coords = CornerDetection.get_corners(
+            np.copy(out_frame))
+        true_corners = np.copy(out_frame)
+        affine = np.copy(out_frame)
+
         # print(coorner_coords)
+        top_left = coorner_coords[0]
+        top_right = coorner_coords[1]
+        bottom_left = coorner_coords[2]
+        bottom_right = coorner_coords[3]
         # # Polygon corner points coordinates
-        # pts = np.array([[25, 70], [25, 145],
-        #                 [75, 190], [150, 190],
-        #                 [200, 145], [200, 70],
-        #                 [150, 25], [75, 25]], np.int32)
+        pts = np.array([[top_left[1], top_left[0]],
+                        [top_right[1], top_right[0]],
+                        [bottom_right[1], bottom_right[0]],
+                        [bottom_left[1], bottom_left[0]]], np.int32)
+        pts = pts.reshape((-1, 1, 2))
+        isClosed = True
 
-        # pts = pts.reshape((-1, 1, 2))
+        # Green color in BGR
+        color = (0, 255, 0)
 
-        # isClosed = True
+        # Line thickness of 8 px
+        thickness = 2
 
-        # # Green color in BGR
-        # color = (0, 255, 0)
+        # Using cv2.polylines() method
+        # Draw a Green polygon swith
+        # thickness of 1 px
+        true_corners = cv2.polylines(true_corners, [pts],
+                                     isClosed, color,
+                                     thickness)
 
-        # # Line thickness of 8 px
-        # thickness = 8
-
-        # # Using cv2.polylines() method
-        # # Draw a Green polygon with
-        # # thickness of 1 px
-        # image = cv2.polylines(image, [pts],
-        #                     isClosed, color,
-        #                     thickness)
+        affine = do_affine(affine, coorner_coords)
 
         one_and_two = cv2.hconcat([video_feed, corners])
-        three_and_four = cv2.hconcat([corners, video_feed])
+        three_and_four = cv2.hconcat([true_corners, affine])
         all_four = cv2.vconcat([one_and_two, three_and_four])
-        fullscreen = cv2.resize(all_four, (width*2, height*2))
-        cv2.imshow('Feeds', fullscreen)
+
+        # fullscreen = cv2.resize(all_four, (width*2, height*2))
+        cv2.imshow('Feeds', all_four)
 
         # enter exits the program
         if cv2.waitKey(1) == 13:
