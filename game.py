@@ -44,10 +44,13 @@ class Game(tk.Canvas):
         self.bar = self.create_rectangle(0, 0, 0, 0, fill="#7f8c8d", width=0)
         self.ball = self.create_oval(0, 0, 0, 0, width=0)
         self.ballNext = self.create_oval(0, 0, 0, 0, width=0, state="hidden")
+        # create line that will be produced when drawn
+        self.gameLine = self.create_line(0, 0, 0, 0, fill='black')
         self.level(1)
         self.nextFrame()
-        # create line that will be produced when drawn
-        self.create_line()
+
+        # self.gameLine = self.create_line(0, 100, 300, 100, fill='black')
+
     # This method, called each time a level is loaded or reloaded,
     # resets all the elements properties (size, position...).
     def reset(self):
@@ -95,11 +98,13 @@ class Game(tk.Canvas):
             return
         self.displayText("LEVEL\n"+str(self.levelNum))
 
-    # This method, called each 1/60 of seconde, computes again
+    # This method, called each 1/60 of second, computes again
     # the properties of all elements (positions, collisions, effects...).
     def nextFrame(self):
         if self.ballThrown and not(self.textDisplayed):
             self.moveBall()
+        
+        self.addLine()
 
         if not(self.textDisplayed):
             self.updateTime()
@@ -132,6 +137,11 @@ class Game(tk.Canvas):
         self.move(self.bar, x, 0)
         if not(self.ballThrown):
             self.move(self.ball, x, 0)
+
+    #added by taylor and delroy to handle adding lines once drawn
+    def addLine(self, start, end):
+        gameLine = self.coords(self.gameLine)
+
 
     # This method, called at each frame, moves the ball.
     # It computes:
