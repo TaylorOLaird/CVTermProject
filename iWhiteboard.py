@@ -45,7 +45,7 @@ def main():
     while True:
         _, img = cap.read()
         # print(img.shape)
-        zoom = 0.5
+        zoom = 0.45
         height = int(img.shape[0]*zoom)
         width = int(img.shape[1]*zoom)
         # convert the image into PIL for easier operations later
