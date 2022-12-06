@@ -8,6 +8,8 @@ import LineThresholding
 
 
 corners = 0
+
+
 def do_affine(img, points):
     height = int(img.shape[0])
     width = int(img.shape[1])
@@ -139,8 +141,20 @@ def main():
         affine = do_affine(affine, coorner_coords)
         ##################################################################
 
+        ##################################################################
+        # feed 6
+        canny_feed = np.copy(affine)
+        gray_canny_feed = cv2.cvtColor(canny_feed, cv2.COLOR_RGB2GRAY)
+        blur_canny_feed = cv2.GaussianBlur(gray_canny_feed, (5, 5), 0)
+        canny_data = cv2.Canny(blur_canny_feed, 90, 120)
+        ret, canny_feed_mask = cv2.threshold(
+            canny_data, 70, 255, cv2.THRESH_BINARY)
+        # cv2.imshow('Video feed', mask)
+        canny_feed_mask = cv2.cvtColor(canny_feed_mask, cv2.COLOR_GRAY2BGR)
+        ##################################################################
+
         one_to_three = cv2.hconcat([video_feed, corners, threshold_lines])
-        four_to_six = cv2.hconcat([true_corners, affine, affine])
+        four_to_six = cv2.hconcat([true_corners, affine, canny_feed_mask])
         all_six = cv2.vconcat([one_to_three, four_to_six])
 
         cv2.imshow('Feeds', all_six)
