@@ -67,7 +67,7 @@ def get_corners(frame):
     bottomRight = findMaxCorner(bottomRight, center) if len(
         bottomRight) > 0 else (height, width)
 
-    return frame, [topLeft, topRight, bottomLeft, bottomRight]
+    return frame, [topLeft, topRight, bottomLeft, bottomRight], (xDivision, yDivision)
 
 
 def main():
