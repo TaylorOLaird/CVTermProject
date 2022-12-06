@@ -35,9 +35,6 @@ def do_affine(img, points):
     # attempts to do later
     matrix = cv2.getPerspectiveTransform(original_corners, new_corners)
     result = cv2.warpPerspective(np.array(img), matrix, (width, height))
-    # plt.imshow(result)
-    # plt.axis('off')
-    # plt.show()
     return result
 
 
@@ -69,6 +66,7 @@ def main():
         # feed 1
         video_feed = np.copy(out_frame)
         ##################################################################
+
         ##################################################################
         # corners is feed 2
         corners, coorner_coords, division = CornerDetection.get_corners(
@@ -128,9 +126,7 @@ def main():
         isClosed = True
         # Green color in BGR
         color = (0, 255, 0)
-        # Using cv2.polylines() method
-        # Draw a Green polygon swith
-        # thickness of 1 px
+
         true_corners = cv2.polylines(true_corners, [pts],
                                      isClosed, color,
                                      thickness)
@@ -153,6 +149,7 @@ def main():
         canny_feed_mask = cv2.cvtColor(canny_feed_mask, cv2.COLOR_GRAY2BGR)
         ##################################################################
 
+        # horizontalling concatinate each feed then virticle concat them
         one_to_three = cv2.hconcat([video_feed, corners, threshold_lines])
         four_to_six = cv2.hconcat([true_corners, affine, canny_feed_mask])
         all_six = cv2.vconcat([one_to_three, four_to_six])
@@ -179,13 +176,6 @@ def main():
     pil_affine = cv2.cvtColor(affine, cv2.COLOR_BGR2RGB)
     pil_affine = Image.fromarray(pil_affine)
     pil_affine.save("out.pdf")
-
-    # # display last_pil with affine
-    # plt.imshow(
-    #     do_affine(last_pil, [(0, 0), (300, 0), (0, 300), (300, 300)]))
-    # # probably save this as pdf in final product
-    # plt.axis('off')
-    # plt.show()
 
 
 if __name__ == "__main__":
