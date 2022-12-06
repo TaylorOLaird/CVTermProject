@@ -3,8 +3,11 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import CornerDetection
+import BallBounce
+import LineThresholding
 
 
+corners = 0
 def do_affine(img, points):
     print("hello world")
 
@@ -102,10 +105,14 @@ def main():
 
         # enter exits the program
         if cv2.waitKey(1) == 13:
+            # pass image to be grayed and get thresholded image
             break
     # kill and close the window when we're done
     cap.release()
     cv2.destroyAllWindows()
+
+    grayThreshold = LineThresholding.threshold(corners)
+    BallBounce.MakeGame(corners, corners.shape[0], corners.shape[1], grayThreshold)
 
     # # display last_pil
     # plt.imshow(np.asarray(last_pil))
