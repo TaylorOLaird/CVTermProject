@@ -36,15 +36,20 @@ colorCorners = 255, 0, 0  # 0, 0, 255
 
 # BGR point changes
 # anywhere the corner (local max of the grandient matrix) is present change the pixel to red
-img[dst > 0.01 * dst.max()] = [colorCorners]
+corner_threshold = 0.01
+# for every pixel set it to red if its over threshold
+img[dst > corner_threshold * dst.max()] = [colorCorners]
 # cv2.imshow(img)
 fig, axs = plt.subplots(1, 1)
+# this is like corners second image
 axs.imshow(img)
 fig.set_figheight(10)
 fig.set_figwidth(10)
 
+# get all the red pixels as these are corners
 locationX, locationY = np.where((img == (colorCorners)).all(axis=2))
 
+# pairs thes x,y's together
 coordinates = [(locationX[i], locationY[i]) for i in range(len(locationX))]
 
 
@@ -113,6 +118,7 @@ axis.axvline([topRight[1]], color='b', label='corner', linestyle='--')
 axis.axvline([bottomLeft[1]], color='purple', label='corner', linestyle='--')
 axis.axvline([bottomRight[1]], color='orange', label='corner', linestyle='--')
 axis.axvline([center[1]], color='r', label='center', linestyle='--')
+# this all is basically the third image
 
 figure.set_figheight(12)
 figure.set_figwidth(12)
