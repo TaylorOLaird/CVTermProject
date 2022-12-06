@@ -43,7 +43,7 @@ def main():
     primary_webcam = 0
     secondary_webcam = 1
     cap = cv2.VideoCapture(primary_webcam)
-    # set it as first frame just so its the right format
+    # set it as first frame just so it's the right format
     last_pil = cap.read()
     while True:
         _, img = cap.read()
