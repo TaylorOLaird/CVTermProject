@@ -175,10 +175,10 @@ def main():
     cv2.imshow('Video feed', mask)
     BallBounce.MakeGame(affine, affine.shape[1], affine.shape[0], mask)
 
-    # # display last_pil
-    # plt.imshow(np.asarray(last_pil))
-    # plt.axis('off')
-    # plt.show()
+    # save the affine as a pdf
+    pil_affine = cv2.cvtColor(affine, cv2.COLOR_BGR2RGB)
+    pil_affine = Image.fromarray(pil_affine)
+    pil_affine.save("out.pdf")
 
     # # display last_pil with affine
     # plt.imshow(
