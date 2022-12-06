@@ -58,21 +58,58 @@ def main():
         # converts the PIL back into the right color space and array
         # so imshow can show it
         out_frame = cv2.cvtColor(np.array(im_pil), cv2.COLOR_RGB2BGR)
-        # cv2.imshow('Video feed', out_frame)
 
-        # # store the current frame as last frame for later use
-        # last_pil = im_pil
-        # # probably will also need to save the current corners
-
-        # im_h = cv2.hconcat([im1, im1])
-        # cv2.imwrite('data/dst/opencv_hconcat.jpg', im_h)
+        # set up each feed
+        ##################################################################
+        # feed 1
         video_feed = np.copy(out_frame)
-        corners, coorner_coords = CornerDetection.get_corners(
+        ##################################################################
+        ##################################################################
+        # corners is feed 2
+        corners, coorner_coords, division = CornerDetection.get_corners(
             np.copy(out_frame))
+        ##################################################################
+
+        ##################################################################
+        # feed 3 is the cross from our threshold
+        threshold_lines = np.copy(out_frame)
+        yDivision, xDivision = division
+        x_top = (xDivision, 0)
+        x_sub = (xDivision, height)
+
+        y_top = (0, yDivision)
+        y_sub = (width, yDivision)
+
+        cross_pts = np.array([[x_top[0], x_top[1]],
+                              [x_sub[0], x_sub[1]]], np.int32)
+
+        # [y_top[0], y_top[1]],
+        #                       [y_sub[0], y_sub[1]]
+        cross_pts = cross_pts.reshape((-1, 1, 2))
+        cross_isClossed = False
+        # Green color in BGR
+        cross_color = (255, 0, 0)
+
+        # Line thickness of 2 px
+        thickness = 2
+
+        # this only has virticle line
+        threshold_lines = cv2.polylines(threshold_lines, [cross_pts],
+                                        cross_isClossed, cross_color,
+                                        thickness)
+        cross_pts = np.array([[y_top[0], y_top[1]],
+                              [y_sub[0], y_sub[1]]], np.int32)
+        # it now has both lines
+        threshold_lines = cv2.polylines(threshold_lines, [cross_pts],
+                                        cross_isClossed, cross_color,
+                                        thickness)
+        ##################################################################
+
+        ##################################################################
+        # feed 4 is true_corners
         true_corners = np.copy(out_frame)
         affine = np.copy(out_frame)
 
-        # print(coorner_coords)
         top_left = coorner_coords[0]
         top_right = coorner_coords[1]
         bottom_left = coorner_coords[2]
@@ -84,28 +121,26 @@ def main():
                         [bottom_left[1], bottom_left[0]]], np.int32)
         pts = pts.reshape((-1, 1, 2))
         isClosed = True
-
         # Green color in BGR
         color = (0, 255, 0)
-
-        # Line thickness of 8 px
-        thickness = 2
-
         # Using cv2.polylines() method
         # Draw a Green polygon swith
         # thickness of 1 px
         true_corners = cv2.polylines(true_corners, [pts],
                                      isClosed, color,
                                      thickness)
+        ##################################################################
 
+        ##################################################################
+        # feed 5
         affine = do_affine(affine, coorner_coords)
+        ##################################################################
 
-        one_and_two = cv2.hconcat([video_feed, corners])
-        three_and_four = cv2.hconcat([true_corners, affine])
-        all_four = cv2.vconcat([one_and_two, three_and_four])
+        one_to_three = cv2.hconcat([video_feed, corners, threshold_lines])
+        four_to_six = cv2.hconcat([true_corners, affine, affine])
+        all_six = cv2.vconcat([one_to_three, four_to_six])
 
-        # fullscreen = cv2.resize(all_four, (width*2, height*2))
-        cv2.imshow('Feeds', all_four)
+        cv2.imshow('Feeds', all_six)
 
         # enter exits the program
         if cv2.waitKey(1) == 13:
