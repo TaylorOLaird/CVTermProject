@@ -118,8 +118,13 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
-    grayThreshold = LineThresholding.threshold(corners)
-    BallBounce.MakeGame(corners, corners.shape[0], corners.shape[1], grayThreshold)
+    # grayThreshold = LineThresholding.threshold(affine)
+    gray = cv2.cvtColor(affine, cv2.COLOR_RGB2GRAY)
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    canny = cv2.Canny(blur, 90, 120)
+    ret, mask = cv2.threshold(canny, 70, 255, cv2.THRESH_BINARY)
+    cv2.imshow('Video feed', mask)
+    BallBounce.MakeGame(affine, affine.shape[1], affine.shape[0], mask)
 
     # # display last_pil
     # plt.imshow(np.asarray(last_pil))

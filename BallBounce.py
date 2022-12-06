@@ -12,11 +12,11 @@ def MakeGame(image, windowWidth, windowHeight, arrayOfLines):
     canvas = Canvas(root, width=windowWidth, height=windowHeight, bg='white')
     canvas.pack(pady=20)
     # print(arrayOfLines)
-    x, y = np.where(arrayOfLines == 0)
+    x, y = np.where(arrayOfLines == 255)
     for i in range(len(x)):
         # print(i)
         # np.where(x == 0)
-        canvas.create_oval(x[i], y[i], x[i] + 3, y[i] + 3, fill='red')
+        canvas.create_oval(y[i], x[i], y[i] + 3, x[i] + 3, fill='red')
 
     root.mainloop()
 
