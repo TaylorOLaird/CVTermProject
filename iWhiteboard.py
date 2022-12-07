@@ -1,11 +1,8 @@
 import cv2
 import numpy as np
 from PIL import Image
-import matplotlib.pyplot as plt
 import CornerDetection
 import BallBounce
-import LineThresholding
-
 
 corners = 0
 
@@ -40,16 +37,15 @@ def do_affine(img, points):
 
 def main():
     primary_webcam = 0
-    secondary_webcam = 1
     cap = cv2.VideoCapture(primary_webcam)
     # set it as first frame just so it's the right format
     last_pil = cap.read()
     while True:
         _, img = cap.read()
-        # print(img.shape)
+
         zoom = 0.45
-        height = int(img.shape[0]*zoom)
-        width = int(img.shape[1]*zoom)
+        height = int(img.shape[0] * zoom)
+        width = int(img.shape[1] * zoom)
         # convert the image into PIL for easier operations later
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         im_pil = Image.fromarray(img)
@@ -86,8 +82,6 @@ def main():
         cross_pts = np.array([[x_top[0], x_top[1]],
                               [x_sub[0], x_sub[1]]], np.int32)
 
-        # [y_top[0], y_top[1]],
-        #                       [y_sub[0], y_sub[1]]
         cross_pts = cross_pts.reshape((-1, 1, 2))
         cross_isClossed = False
         # Green color in BGR
@@ -96,7 +90,7 @@ def main():
         # Line thickness of 2 px
         thickness = 2
 
-        # this only has virticle line
+        # this only has vertical line
         threshold_lines = cv2.polylines(threshold_lines, [cross_pts],
                                         cross_isClossed, cross_color,
                                         thickness)
@@ -145,7 +139,7 @@ def main():
         canny_data = cv2.Canny(blur_canny_feed, 90, 120)
         ret, canny_feed_mask = cv2.threshold(
             canny_data, 70, 255, cv2.THRESH_BINARY)
-        # cv2.imshow('Video feed', mask)
+
         canny_feed_mask = cv2.cvtColor(canny_feed_mask, cv2.COLOR_GRAY2BGR)
         ##################################################################
 

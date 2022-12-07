@@ -20,7 +20,7 @@ def findMaxCorner(points, center):
 def get_corners(frame):
     height = frame.shape[0]
     width = frame.shape[1]
-    # converst to gray for cornerHarris
+    # convert to gray for cornerHarris
     gray = np.float32(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
     dst = cv2.cornerHarris(gray, 2, 3, 0.04)
 
